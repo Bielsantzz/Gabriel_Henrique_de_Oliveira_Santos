@@ -1,4 +1,5 @@
 from django.db import models
+import os
 
 
 class Responsaveis(models.Model):
@@ -37,7 +38,8 @@ class Sensores(models.Model):
 class Historico(models.Model):
     sensor = models.ForeignKey(Sensores,on_delete=models.CASCADE)
     valor = models.CharField(max_length=150)
-    times = models.IntegerField
+    timestamp = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return f"{self.sensor} - {self.valor}"
