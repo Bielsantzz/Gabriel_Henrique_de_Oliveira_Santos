@@ -28,12 +28,12 @@ class Sensores(models.Model):
     unidade_med = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    status = models.BooleanField(default=True)
-    timesamp = models.DateTimeField()
+    status = models.CharField(max_length=255)
+    timestamp = models.DateTimeField()
     ambiente = models.ForeignKey(Ambientes, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.sensor} - {self.mac_address}"
+        return f"{self.id_sensor} - {self.mac_address}"
     
 class Historico(models.Model):
     sensor = models.ForeignKey(Sensores,on_delete=models.CASCADE)
@@ -42,7 +42,7 @@ class Historico(models.Model):
 
 
     def __str__(self):
-        return f"{self.sensor} - {self.valor}"
+        return f"{self.id_sensor} - {self.valor}"
     
 
 

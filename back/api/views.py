@@ -12,7 +12,7 @@ class ResponsaveisViewSet(viewsets.ModelViewSet):
     queryset = Responsaveis.objects.all()
     serializer_class = ResponsaveisSerializers
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ['respnsavel']
+    search_fields = ['responsavel']
     permission_classes =[IsAuthenticated]
     
 
@@ -41,6 +41,3 @@ class AmbientesViewSet(viewsets.ModelViewSet):
     serializer_class = AmbientesSerializers
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['descricao']
-
-
-

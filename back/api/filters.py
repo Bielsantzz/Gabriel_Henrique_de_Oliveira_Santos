@@ -5,27 +5,27 @@ from models import Responsaveis, Locais, Ambientes, Sensores,Historico
 
 class ResponsaveisFilter(df.FilterSet):
    class Meta:
-      Model = Responsaveis
-      fields = ['nome']
+      model = Responsaveis
+      fields = ['respnsavel']
 
 class LocaisFilter(df.FilterSet):
    class Meta:
-      Model = Locais
+      model = Locais
       fields = ['nome']
 
 class AmbientesFilter(df.FilterSet):
    class Meta:
-      Model = Ambientes
+      model = Ambientes
       fields = ['nome', 'local']
 
 
 class SensoresFilter(df.FilterSet):
    class Meta:
-      Model = Sensores
+      model = Sensores
       fields = ['nome', 'ambiente']
 
 class HistoricoFilter(df.FilterSet):
    class Meta:
-      Model = Historico
+      model = Historico
       fields = ['sensor', 'timesamp']
 
