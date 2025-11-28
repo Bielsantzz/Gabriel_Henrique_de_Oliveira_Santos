@@ -1,5 +1,4 @@
 from django.db import models
-import os
 
 
 class Responsaveis(models.Model):
@@ -16,7 +15,7 @@ class Locais(models.Model):
     
 class Ambientes(models.Model):
     local = models.ForeignKey(Locais, on_delete=models.CASCADE)
-    descricao = models.TextField(max_length=255)
+    descricao = models.CharField(max_length=255)
     responsavel = models.ForeignKey(Responsaveis, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -28,7 +27,7 @@ class Sensores(models.Model):
     unidade_med = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    status = models.CharField(max_length=255)
+    status = models.BooleanField(max_length=255)
     timestamp = models.DateTimeField()
     ambiente = models.ForeignKey(Ambientes, on_delete=models.CASCADE)
 
@@ -37,7 +36,7 @@ class Sensores(models.Model):
     
 class Historico(models.Model):
     sensor = models.ForeignKey(Sensores,on_delete=models.CASCADE)
-    valor = models.CharField(max_length=150)
+    valor = models.FloatField(max_length=150)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 

@@ -3,8 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Responsaveis, Locais, Ambientes, Sensores, Historico
-from .serializers import (ResponsaveisSerializers,LocaisSerializers,
-                          SensoresSerializers,HistoricoSerializers,AmbientesSerializers,)
+from .serializers import (ResponsaveisSerializers,LocaisSerializers,SensoresSerializers,HistoricoSerializers,AmbientesSerializers,)
 
 
 

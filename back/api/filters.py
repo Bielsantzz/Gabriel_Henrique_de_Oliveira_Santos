@@ -6,7 +6,7 @@ from models import Responsaveis, Locais, Ambientes, Sensores,Historico
 class ResponsaveisFilter(df.FilterSet):
    class Meta:
       model = Responsaveis
-      fields = ['respnsavel']
+      fields = ['responsavel']
 
 class LocaisFilter(df.FilterSet):
    class Meta:

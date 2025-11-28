@@ -38,11 +38,11 @@ class Command(BaseCommand):
                 criados += int(created)
                 atualizados += int (not created)
 
-            self.stdout.write(self.style.SUCESS(f'criados: {criados} | atualizados: {atualizados}'))
+            self.stdout.write(self.style.SUCCESS(f'criados: {criados} | atualizados: {atualizados}'))
 
         else:
             objs = [
-                Responsaveis(nome=r.nome)
+                Responsaveis(Responsavel=r.nome)
                 for r in df.itertuples(index=False)
             ]
 
