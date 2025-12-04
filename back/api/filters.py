@@ -1,6 +1,5 @@
 import django_filters as df
-from django.db.models import Q
-from models import Responsaveis, Locais, Ambientes, Sensores,Historico
+from .models import Responsaveis, Locais, Ambientes, Sensores,Historico
 
 
 class ResponsaveisFilter(df.FilterSet):
@@ -11,21 +10,21 @@ class ResponsaveisFilter(df.FilterSet):
 class LocaisFilter(df.FilterSet):
    class Meta:
       model = Locais
-      fields = ['nome']
+      fields = ['local']
 
 class AmbientesFilter(df.FilterSet):
    class Meta:
       model = Ambientes
-      fields = ['nome', 'local']
+      fields = ['descricao', 'local']
 
 
 class SensoresFilter(df.FilterSet):
    class Meta:
       model = Sensores
-      fields = ['nome', 'ambiente']
+      fields = ['sensor', 'ambiente']
 
 class HistoricoFilter(df.FilterSet):
    class Meta:
       model = Historico
-      fields = ['sensor', 'timesamp']
+      fields = ['sensor', 'timestamp']
 

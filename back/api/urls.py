@@ -1,14 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import ResponsaveisViewSet, LocaisViewSet, AmbientesViewSet, SensoresViewSet, HistoricoViewSet
+from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import  *
 
-router = DefaultRouter()
-router.register(r'responsaveis', ResponsaveisViewSet, basename='responsaveis')
-router.register(r'locais', LocaisViewSet, basename='locais')
-router.register(r'ambientes', AmbientesViewSet, basename='ambientes')
-router.register(r'sensores', SensoresViewSet, basename='sensores')
-router.register(r'historico', HistoricoViewSet, basename='historico')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('token', TokenObtainPairView.as_view(),name='token_obtain'),
 ]
