@@ -1,50 +1,68 @@
 import pandas as pd
-from django.core.management.base import BaseCommand
+from pathlib import Path
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from api.models import Responsaveis
 
 class Command(BaseCommand):
-
+    help = "Importa responsaveis de population/responsaveis.csv usando pandas (com limpeza e validação)."
 
     def add_arguments(self, parser):
-        parser.add_argument("--arquivo", default="population/Responsaveis.csv")
-        parser.add_argument("--truncate", action="store_true")
-        parser.add_argument("--update", action="store_true")
+        parser.add_argument("--arquivo_responsaveis", default=str(Path("population") / "responsaveis.csv"))
+        parser.add_argument("--truncate", action="store_true", help="Apaga todos os responsaveis antes de importar")
+        parser.add_argument("--update", action="store_true", help="Faz upsert (update_or_create) em vez de inserir em massa")
 
-    @transaction.atomic
-    def handle(self, *a, **o):
+    @transaction.atomic 
+    def handle(self, *args, **opts):
+        csv_path = Path(opts["arquivo_responsaveis"]) 
+        if not csv_path.exists(): 
+            raise CommandError(f"Arquivo não encontrado: {csv_path}")
 
-        df = pd.read_csv(o["arquivo"], encoding="utf-8")
+        df = pd.read_csv(csv_path)
 
-        df.columns = [c.strip().lower().lstrip("\ufeff") for c in df.columns]
+        for col in ["nome"]:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.strip()
+            else:
+                df[col] = ""
 
-        if o["truncate"]:
+        df = df.dropna(how="all")
+        df = df.drop_duplicates(subset=["nome"], keep="first").reset_index(drop=True)
+
+        obrigatorios = df["nome"].ne("") 
+        invalidos = df[~obrigatorios]
+        if not invalidos.empty: 
+            self.stdout.write(self.style.WARNING(f"Pulando {len(invalidos)} linha(s) inválida(s)."))
+
+        df = df[obrigatorios]
+
+        if opts["truncate"]:
+            self.stdout.write(self.style.WARNING("Limpando tabela api_responsaveis..."))
             Responsaveis.objects.all().delete()
 
-        df['nome'] = df['nome'].astype(str).str.strip()
+        criados = 0
+        atualizados = 0
 
-        if o["update"]:
-            criados = atualizados = 0
-            for r in df.itertuples(index=False):
+        if opts["update"]: 
+            for row in df.itertuples(index=False):
                 obj, created = Responsaveis.objects.update_or_create(
-                    responsavel=r.nome,
-                    defaults={"responsavel": r.nome}
+                    nome=row.nome
                 )
 
                 if created:
                     criados += 1
                 else:
                     atualizados += 1
-
-            self.stdout.write(self.style.SUCCESS(f'criados: {criados} | atualizados: {atualizados}'))
-
         else:
-            objs = [
-                Responsaveis(responsavel=r.nome)
-                for r in df.itertuples(index=False)
-            ]
+            buffer = []
+            for row in df.itertuples(index=False):
+                buffer.append(Responsaveis(
+                    nome=row.nome
+                ))
+            Responsaveis.objects.bulk_create(buffer, ignore_conflicts=True)
+            criados = len(buffer)
 
-            Responsaveis.objects.bulk_create(objs, ignore_conflicts=True)
-
-            self.stdout.write(self.style.SUCCESS(f'Criados: {len(objs)}'))
-
+        msg = f"Concluído. Criado: {criados}"
+        if opts["update"]:
+            msg += f" | Atualizados: {atualizados}"
+        self.stdout.write(self.style.SUCCESS(msg))

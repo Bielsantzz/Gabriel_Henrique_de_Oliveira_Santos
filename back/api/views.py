@@ -1,81 +1,94 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.filters import SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet, BooleanFilter
-from .models import Responsaveis, Locais, Ambientes, Sensores, Historico
-from .serializers import (
-    ResponsaveisSerializers,
-    LocaisSerializers,
-    SensoresSerializers,
-    HistoricoSerializers,
-    AmbientesSerializers
+from django.shortcuts import render
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    CreateAPIView
+)
+from django.contrib.auth import get_user_model
+from .models import Responsaveis, Locais, Sensores, Ambientes, Historico
+from .serializers import (ResponsaveisSerializer,
+    LocaisSerializer,
+    SensoresSerializer,
+    AmbientesSerializer,
+    HistoricoSerializer,
+    RegisterSerializer
 )
 
-# Filtros
-class ResponsaveisFilter(FilterSet):
-    class Meta:
-        model = Responsaveis
-        fields = ['responsavel']
-
-class LocaisFilter(FilterSet):
-    class Meta:
-        model = Locais
-        fields = ['local']
-
-class AmbientesFilter(FilterSet):
-    class Meta:
-        model = Ambientes
-        fields = ['descricao']
-
-class HistoricoFilter(FilterSet):
-    class Meta:
-        model = Historico
-        fields = ['sensor', 'timestamp']  # ajuste conforme campos do seu model
-
-class SensoresFilter(FilterSet):
-    status = BooleanFilter(field_name='status')
-
-    class Meta:
-        model = Sensores
-        fields = ['status', 'sensor', 'mac_address', 'ambiente']
-
-# ViewSets
-class ResponsaveisViewSet(viewsets.ModelViewSet):
+# ----------------------------
+# CRUD Responsáveis
+# ----------------------------
+class ResponsaveisView(ListCreateAPIView):
     queryset = Responsaveis.objects.all()
-    serializer_class = ResponsaveisSerializers
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = ResponsaveisFilter
-    search_fields = ['responsavel']
-    permission_classes = [IsAuthenticated]
+    serializer_class = ResponsaveisSerializer
 
-class LocaisViewSet(viewsets.ModelViewSet):
+
+class ResponsaveisDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Responsaveis.objects.all()
+    serializer_class = ResponsaveisSerializer
+
+
+# ----------------------------
+# CRUD Locais
+# ----------------------------
+class LocaisView(ListCreateAPIView):
     queryset = Locais.objects.all()
-    serializer_class = LocaisSerializers
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = LocaisFilter
-    search_fields = ['local']
-    permission_classes = [IsAuthenticated]
+    serializer_class = LocaisSerializer
 
-class AmbientesViewSet(viewsets.ModelViewSet):
+
+class LocaisDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Locais.objects.all()
+    serializer_class = LocaisSerializer
+
+
+# ----------------------------
+# CRUD Ambientes
+# ----------------------------
+class AmbientesView(ListCreateAPIView):
     queryset = Ambientes.objects.all()
-    serializer_class = AmbientesSerializers
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = AmbientesFilter
-    search_fields = ['descricao']
-    permission_classes = [IsAuthenticated]
+    serializer_class = AmbientesSerializer
 
-class SensoresViewSet(viewsets.ModelViewSet):
+
+class AmbientesDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Ambientes.objects.all()
+    serializer_class = AmbientesSerializer
+
+
+# ----------------------------
+# CRUD Sensores
+# ----------------------------
+class SensoresView(ListCreateAPIView):
     queryset = Sensores.objects.all()
-    serializer_class = SensoresSerializers
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = SensoresFilter
-    search_fields = ['sensor', 'mac_address']
-    permission_classes = [IsAuthenticated]
+    serializer_class = SensoresSerializer
 
-class HistoricoViewSet(viewsets.ModelViewSet):
+
+class SensoresDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Sensores.objects.all()
+    serializer_class = SensoresSerializer
+    
+
+class HistoricoView(ListCreateAPIView):
     queryset = Historico.objects.all()
-    serializer_class = HistoricoSerializers
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = HistoricoFilter
-    search_fields = []
-    permission_classes = [IsAuthenticated]
+    serializer_class = HistoricoSerializer
+
+class HistoricoDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Historico.objects.all()
+    serializer_class = HistoricoSerializer
+
+# ----------------------------
+# Register User
+# ----------------------------
+User = get_user_model()
+
+class RegisterView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    
+    def post(self, request, *args, **kwargs):
+        ser = self.get_serializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+        user = ser.save()
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': {'id': user.id, 'username': user.username},
+            'tokens': {'refresh': str(refresh), 'access': str(refresh.access_token)}
+        }, status=status.HTTP_201_CREATED)
